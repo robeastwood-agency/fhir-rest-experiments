@@ -1,0 +1,50 @@
+@serverurl = https://api.healthterminologies.gov.au/integration/R4/fhir/
+
+### 
+// Get server CapabilityStatement
+GET {{serverurl}}metadata
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// Get all CodeSystems in NCTS
+GET {{serverurl}}CodeSystem
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// Get all ValueSets in NCTS
+GET {{serverurl}}ValueSet
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// Get all ConceptMaps in NCTS
+GET {{serverurl}}ConceptMap
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// Get all StructureDefinitions in NCTS
+GET {{serverurl}}StructureDefinition
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// Get StructureDefinition : NCTS Composed Value Set
+GET {{serverurl}}StructureDefinition/composed-value-set-4
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// Get CodeSystem : NCTIS Data Components
+GET {{serverurl}}CodeSystem/nctis-data-components-1
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// Get LOINC CodeSystem
+// returns 0
+GET {{serverurl}}CodeSystem?url=http://loinc.org
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml

@@ -1,0 +1,70 @@
+@serverurl = https://api.healthterminologies.gov.au/integration/R4/fhir/
+@cs-url = https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1
+@cs-id = nctis-data-components-1
+
+### 
+// GET CodeSystem : NCTIS Data Components
+// success: returns a single CodeSystem resource
+GET {{serverurl}}CodeSystem/nctis-data-components-1
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### VALID CODE - GET
+// Operation $lookup on CodeSystem (http://hl7.org/fhir/codesystem-operation-lookup.html)
+// Lookup a valid code 103.16410 Active Ingredient Strength
+// using GET
+// returns Parameters resource with correct concept details (display, designation etc)
+@valid-code = 103.16410
+GET {{serverurl}}CodeSystem/$lookup?system={{cs-url}}&code={{valid-code}}
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+###  VALID CODE - POST
+// Operation $lookup on CodeSystem (http://hl7.org/fhir/codesystem-operation-lookup.html)
+// Lookup a valid code 101.16763 Vaccine Administration Entry
+// using POST with variables supplied in parameters resource
+// returns Parameters resource with correct concept details (display, designation etc)
+
+POST {{serverurl}}CodeSystem/$lookup
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+<Parameters xmlns="http://hl7.org/fhir">
+  <parameter>
+    <name value="coding"/>
+  <valueCoding>
+    <system value="https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1"/>
+    <code value="101.16763"/>
+  </valueCoding>
+  </parameter>
+</Parameters>
+
+###  INVALID CODE - GET
+// Operation $lookup on CodeSystem (http://hl7.org/fhir/codesystem-operation-lookup.html)
+// Lookup an invalid code 109.99990
+// returns OperationOutcome resource with error, not found
+// diagnostics value="The code 109.99990 (https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1:1.12.0) was not found."
+@invalid-code = 109.99990
+GET {{serverurl}}CodeSystem/$lookup?system={{cs-url}}&code={{invalid-code}}
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+###  INVALID CODE - POST
+// Operation $lookup on CodeSystem (http://hl7.org/fhir/codesystem-operation-lookup.html)
+// Lookup an invalid code 1963-8 (which is actually from LOINC)
+// returns OperationOutcome resource with error, not found
+// diagnostics value="The code 1963-8 (https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1:1.12.0) was not found."
+
+POST {{serverurl}}CodeSystem/$lookup
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+<Parameters xmlns="http://hl7.org/fhir">
+  <parameter>
+    <name value="coding"/>
+  <valueCoding>
+    <system value="https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1"/>
+    <code value="1963-8"/>
+  </valueCoding>
+  </parameter>
+</Parameters>
