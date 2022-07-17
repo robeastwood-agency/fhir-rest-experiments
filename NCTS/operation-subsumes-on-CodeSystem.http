@@ -1,10 +1,9 @@
 @serverurl = https://api.healthterminologies.gov.au/integration/R4/fhir/
 @ndc-url = https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1
-@cs-id = nctis-data-components-1
 
 // Operation $subsumes on CodeSystem (http://hl7.org/fhir/codesystem-operation-subsumes.html)
 
-// note that the NDC CodeSystem is not hierarchical 
+// note that the NDC CodeSystem is a flat list with no hierarchy
 
 ### 
 // GET CodeSystem : NCTIS Data Components
@@ -17,7 +16,10 @@ Content-Type: application/fhir+xml
 // Request: Using simple parameters: is 'Viral hepatitis' (3738000) a 'Disorder of liver' (235856003)?
 // returns OperationOutcome with issue error
 // diagnostics: "Code system http://snomed.info/sct could not be resolved. It does not appear to be indexed."
-GET {{serverurl}}CodeSystem/$subsumes?system=http://snomed.info/sct&codeA=3738000&codeB=235856003
+GET {{serverurl}}CodeSystem/$subsumes
+    ?system=http://snomed.info/sct
+    &codeA=3738000
+    &codeB=235856003
 Accept: application/fhir+xml
 Content-Type: application/fhir+xml
 
@@ -25,14 +27,20 @@ Content-Type: application/fhir+xml
 // Request: Using simple parameters: is 'Viral hepatitis' (3738000) a 'Disorder of liver' (235856003)?
 // returns OperationOutcome with issue error
 // diagnostics: "Unsupported Operation subsumes on resource CodeSystem" ==>> UNEXPECTED
-GET http://tx.fhir.org/r4/CodeSystem/$subsumes?system=http://snomed.info/sct&codeA=3738000&codeB=235856003
+GET http://tx.fhir.org/r4/CodeSystem/$subsumes
+    ?system=http://snomed.info/sct
+    &codeA=3738000
+    &codeB=235856003
 Accept: application/fhir+xml
 Content-Type: application/fhir+xml
 
 ### SNOMED example on CSIRO onto terminology server
 // Request: Using simple parameters: is 'Viral hepatitis' (3738000) a 'Disorder of liver' (235856003)?
 // returns Parameters instance with outcome "subsumed-by"
-GET https://r4.ontoserver.csiro.au/fhir/CodeSystem/$subsumes?system=http://snomed.info/sct&codeA=3738000&codeB=235856003
+GET https://r4.ontoserver.csiro.au/fhir/CodeSystem/$subsumes
+    ?system=http://snomed.info/sct
+    &codeA=3738000
+    &codeB=235856003
 Accept: application/fhir+xml
 Content-Type: application/fhir+xml
 
@@ -42,16 +50,21 @@ Content-Type: application/fhir+xml
 // returns Parameters instance with outcome "not-subsumed"
 @codeA = 103.16756
 @codeB = 101.16763
-GET {{serverurl}}CodeSystem/$subsumes?system={{ndc-url}}&codeA={{codeA}}&codeB={{codeB}}
+GET {{serverurl}}CodeSystem/$subsumes
+    ?system={{ndc-url}}
+    &codeA={{codeA}}
+    &codeB={{codeB}}
 Accept: application/fhir+xml
 Content-Type: application/fhir+xml
 
 ### NDC example on NCTS, and its inverse
-// Request: Using simple parameters: is 'Vaccine Administration Entry' (101.16763) a 'Vaccine Cancellation Reason Type' (103.16756)?
-// conversationally it may be, but the NDC CodeSystem has no hierarchy so it should return 'no'
-// returns Parameters instance with outcome "subsumed-by"
+// Request: the inverse of the one above: is 'Vaccine Administration Entry' (101.16763) a 'Vaccine Cancellation Reason Type' (103.16756)?
+// returns Parameters instance with outcome "not-subsumed"
 
-GET {{serverurl}}CodeSystem/$subsumes?system={{ndc-url}}&codeA={{codeB}}&codeB={{codeA}}
+GET {{serverurl}}CodeSystem/$subsumes
+    ?system={{ndc-url}}
+    &codeA={{codeB}}
+    &codeB={{codeA}}
 Accept: application/fhir+xml
 Content-Type: application/fhir+xml
 
@@ -60,7 +73,10 @@ Content-Type: application/fhir+xml
 // conversationally it may be, but the NDC CodeSystem has no hierarchy so it should return 'no'
 // returns Parameters instance with outcome "equivalent"
 
-GET {{serverurl}}CodeSystem/$subsumes?system={{ndc-url}}&codeA={{codeB}}&codeB={{codeB}}
+GET {{serverurl}}CodeSystem/$subsumes
+    ?system={{ndc-url}}
+    &codeA={{codeB}}
+    &codeB={{codeB}}
 Accept: application/fhir+xml
 Content-Type: application/fhir+xml
 
@@ -71,7 +87,10 @@ Content-Type: application/fhir+xml
 // OperationOutcome.issue.code = invalid
 // OperationOutcome.issue.diagnostics = An invalid code was supplied
 
-GET {{serverurl}}CodeSystem/$subsumes?system={{ndc-url}}&codeA=23453454&codeB=8768678768
+GET {{serverurl}}CodeSystem/$subsumes
+    ?system={{ndc-url}}
+    &codeA=23453454
+    &codeB=8768678768
 Accept: application/fhir+xml
 Content-Type: application/fhir+xml
 
@@ -83,7 +102,10 @@ Content-Type: application/fhir+xml
 @anzsic-url = http://www.abs.gov.au/ausstats/abs@.nsf/mf/1292.0
 @code1 = 8533
 @code2 = 853
-GET {{serverurl}}CodeSystem/$subsumes?system={{anzsic-url}}&codeA={{code1}}&codeB={{code2}}
+GET {{serverurl}}CodeSystem/$subsumes
+    ?system={{anzsic-url}}
+    &codeA={{code1}}
+    &codeB={{code2}}
 Accept: application/fhir+xml
 Content-Type: application/fhir+xml
 
@@ -91,20 +113,23 @@ Content-Type: application/fhir+xml
 // Request: Using simple parameters: is 'Allied Health Services' (853) a 'Physiotherapy Services' (8533)?
 // from the hierarchical structure of this CodeSystem it should return 'subsumes'
 // returns Parameters instance with outcome "subsumes"
-@anzsic-url = http://www.abs.gov.au/ausstats/abs@.nsf/mf/1292.0
+
 @code1 = 8533
 @code2 = 853
-GET {{serverurl}}CodeSystem/$subsumes?system={{anzsic-url}}&codeA={{code2}}&codeB={{code1}}
+GET {{serverurl}}CodeSystem/$subsumes
+    ?system={{anzsic-url}}
+    &codeA={{code2}}
+    &codeB={{code1}}
 Accept: application/fhir+xml
 Content-Type: application/fhir+xml
 
 ### ANZSIC example on NCTS, (hierarchical CodeSystem) - same code
 // Request: Using simple parameters: is 'Physiotherapy Services' (8533) a 'Physiotherapy Services' (8533)?
-// from the hierarchical structure of this CodeSystem it should return 'subsumes'
 // returns Parameters instance with outcome "equivalent"
-@anzsic-url = http://www.abs.gov.au/ausstats/abs@.nsf/mf/1292.0
-@code1 = 8533
-@code2 = 853
-GET {{serverurl}}CodeSystem/$subsumes?system={{anzsic-url}}&codeA={{code1}}&codeB={{code1}}
+
+GET {{serverurl}}CodeSystem/$subsumes
+    ?system={{anzsic-url}}
+    &codeA={{code1}}
+    &codeB={{code1}}
 Accept: application/fhir+xml
 Content-Type: application/fhir+xml
