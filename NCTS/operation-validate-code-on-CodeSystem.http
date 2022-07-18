@@ -1,0 +1,162 @@
+@serverurl = https://api.healthterminologies.gov.au/integration/R4/fhir/
+@ndc-url = https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1
+@ndc-id = nctis-data-components-1
+
+// Operation $validate-code on CodeSystem (http://hl7.org/fhir/codesystem-operation-validate-code.html)
+
+// Validate that a coded value is in the code system.
+
+### spec example 1 against core terminolgy server http://tx.fhir.org/r4/
+// example: http://hl7.org/fhir/codesystem-operation-validate-code.html#examples
+// returns 404 error
+// "TResource Id "CodeSystem:loinc" does not exist" (!!)
+GET http://tx.fhir.org/r4/CodeSystem/loinc/$validate-code
+    ?code=1963-8
+    &display=test
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// GET CodeSystem : NCTIS Data Components
+// success: returns a single CodeSystem resource
+GET {{serverurl}}CodeSystem/nctis-data-components-1
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// GET CodeSystem validate code, with valid code and display
+// success: returns a Parameters resource
+// parameter.result = true
+// parameter.display = Category
+GET {{serverurl}}CodeSystem/{{ndc-id}}/$validate-code
+    ?code=103.17018
+    &display=Category
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// GET CodeSystem validate code, with invalid code and display
+// code does & display does not exist in CS 
+// success: returns a Parameters resource
+// parameter.result = false
+// parameter.message = "The specified code '109.99999' is not known to belong to the specified code system 'https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1'"
+GET {{serverurl}}CodeSystem/{{ndc-id}}/$validate-code
+    ?code=109.99999
+    &display=CategoryIssue
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// GET CodeSystem validate code, with valid code with a wrong display
+// success: returns a Parameters resource
+// parameter.result = false
+// parameter.message = "The code 103.17018 exists in the CodeSystem, but the display 'CategoryIssue' is incorrect"
+GET {{serverurl}}CodeSystem/{{ndc-id}}/$validate-code
+    ?code=103.17018
+    &display=CategoryIssue
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// GET CodeSystem validate code, with valid code (no display)
+// success: returns a Parameters resource
+// parameter.result = true
+// parameter.display = Category
+GET {{serverurl}}CodeSystem/{{ndc-id}}/$validate-code
+    ?code=103.17018
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// GET CodeSystem validate code, with invalid code (no display)
+// code does not exist in CS 
+// success: returns a Parameters resource
+// parameter.result = false
+// parameter.message = "The specified code '109' is not known to belong to the specified code system 'https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1'"
+GET {{serverurl}}CodeSystem/{{ndc-id}}/$validate-code
+    ?code=109
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+### 
+// POST CodeSystem validate code, with valid code and its valid display
+// success: returns a Parameters resource
+// parameter.result = true
+// parameter.display = "Vaccine Administration Entry"
+
+POST {{serverurl}}CodeSystem/$validate-code
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+<Parameters xmlns="http://hl7.org/fhir">
+  <parameter>
+    <name value="coding"/>
+  <valueCoding>
+    <system value="https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1"/>
+    <code value="101.16763"/>
+    <display value="Vaccine Administration Entry"/>
+  </valueCoding>
+  </parameter>
+</Parameters>
+
+### 
+// POST CodeSystem validate code, with valid code and no display
+// success: returns a Parameters resource
+// parameter.result = true
+// parameter.display = "Vaccine Administration Entry"
+
+POST {{serverurl}}CodeSystem/$validate-code
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+<Parameters xmlns="http://hl7.org/fhir">
+  <parameter>
+    <name value="coding"/>
+  <valueCoding>
+    <system value="https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1"/>
+    <code value="101.16763"/>
+  </valueCoding>
+  </parameter>
+</Parameters>
+
+### 
+// POST CodeSystem validate code, with valid code and incorrect display
+// success: returns a Parameters resource
+// parameter.result = false
+// parameter.message = "The code 101.16763 exists in the CodeSystem, but the display 'Vaccine Record Entry' is incorrect"
+// parameter.display = "Vaccine Administration Entry"
+
+POST {{serverurl}}CodeSystem/$validate-code
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+<Parameters xmlns="http://hl7.org/fhir">
+  <parameter>
+    <name value="coding"/>
+  <valueCoding>
+    <system value="https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1"/>
+    <code value="101.16763"/>
+    <display value="Vaccine Record Entry"/>
+  </valueCoding>
+  </parameter>
+</Parameters>
+
+### 
+// POST CodeSystem validate code, with invalid code
+// success: returns a Parameters resource
+// parameter.result = false
+// parameter.message = "The specified code '1099.16' is not known to belong to the specified code system 'https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1'"
+
+POST {{serverurl}}CodeSystem/$validate-code
+Accept: application/fhir+xml
+Content-Type: application/fhir+xml
+
+<Parameters xmlns="http://hl7.org/fhir">
+  <parameter>
+    <name value="coding"/>
+  <valueCoding>
+    <system value="https://healthterminologies.gov.au/fhir/CodeSystem/nctis-data-components-1"/>
+    <code value="1099.16"/>
+  </valueCoding>
+  </parameter>
+</Parameters>
